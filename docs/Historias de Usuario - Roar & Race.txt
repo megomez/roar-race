@@ -1,0 +1,488 @@
+﻿Historias de Usuario — Roar & Race
+Visión General del Proyecto
+Roar & Race es una experiencia multijugador arcade de carreras en Roblox (disponible en PC, Mobile y Consolas) en la que los jugadores compiten sobre monturas animales a través de circuitos procedurales generados dinámicamente por biomas.
+
+
+El juego combina un modelo de conducción arcade, habilidades pasivas exclusivas por especie, recolección estratégica de power-ups, emparejamiento rápido asistido por Bots con Inteligencia Artificial y un sistema competitivo de ligas mensuales.
+
+
+________________
+
+
+Módulo 1: Sistema Core de Conducción y Físicas de Montura
+HU-01.1: Control y maniobrabilidad de la montura en Dispositivos Móviles (Pantalla Táctil)
+Especificación
+	Detalle
+	Declaración
+	"Como jugador en dispositivos móviles, quiero controlar la dirección, aceleración, frenado y activación de acciones de mi montura mediante una interfaz táctil adaptativa e intuitiva, para disfrutar de una conducción fluida y precisa en pantallas de cualquier tamaño."
+	Requerimientos
+	RF-01, RNF-08, RNF-09
+	Criterios de Aceptación
+* Escenario 1: Mapeo y respuesta táctil con predicción local
+   * Dado que el jugador ingresa a la carrera desde un dispositivo móvil con interfaz táctil adaptativa,
+   * Cuando opera el joystick táctil virtual para dirigir la montura o presiona los botones en pantalla para frenar, acelerar y usar ítems,
+   * Entonces el cliente procesa la entrada en tiempo real con una latencia de respuesta visual menor a 100 ms utilizando predicción local.
+* Escenario 2: Escalado adaptativo (Responsive) de la interfaz táctil
+   * Dado que el usuario ejecuta el juego en un dispositivo móvil con diferentes resoluciones o relaciones de aspecto (smartphone o tablet),
+   * Cuando se carga o rota la interfaz de conducción en pantalla,
+   * Entonces el sistema ajusta y escala dinámicamente la posición y tamaño de las zonas táctiles (hitboxes del joystick y botones de acción) para garantizar la ergonomía sin superponerse con otros elementos de la UI.
+
+
+________________
+
+
+HU-01.2: Control y maniobrabilidad de la montura en PC (Teclado y Mouse)
+Especificación
+	Detalle
+	Declaración
+	"Como jugador en PC, quiero controlar la dirección, aceleración, frenado y activación de acciones de mi montura mediante teclado y mouse con una interfaz adaptativa, para disfrutar de una conducción precisa y con respuesta inmediata durante la carrera."
+	Requerimientos
+	RF-01, RNF-08, RNF-09
+	Criterios de Aceptación
+* Escenario 1: Mapeo de entradas de teclado y mouse
+   * Dado que el jugador inicia la carrera en PC con periféricos de teclado y mouse,
+   * Cuando presiona las teclas de dirección (WASD / Flechas) o utiliza los botones del mouse para interactuar con las acciones de la montura,
+   * Entonces el sistema procesa la entrada en tiempo real ejecutando el giro, aceleración y uso de ítems con respuesta visual inmediata.
+* Escenario 2: Adaptabilidad y redimensionamiento de ventana (Responsive UI en PC)
+   * Dado que el usuario ejecuta el juego en PC en modo ventana o cambia la resolución de pantalla durante la partida,
+   * Cuando se modifica la dimensión de la ventana del cliente,
+   * Entonces los elementos visuales de la interfaz de conducción, velocímetro e indicaciones de controles se reajustan proporcionalmente sin distorsionarse ni salirse de los límites visibles.
+
+
+________________
+
+
+HU-01.3: Control y maniobrabilidad de la montura en Consola (Gamepad)
+Especificación
+	Detalle
+	Declaración
+	"Como jugador en Consola, quiero controlar la dirección, aceleración, frenado y activación de acciones de mi montura mediante un gamepad con navegación adaptativa y zonas muertas calibradas, para disfrutar de una conducción fluida y cómoda en televisión o pantalla grande."
+	Requerimientos
+	RF-01, RNF-08, RNF-09
+	Criterios de Aceptación
+* Escenario 1: Mapeo de gamepad y zonas muertas calibradas
+   * Dado que el usuario juega en consola o utiliza un gamepad conectado,
+   * Cuando utiliza los joysticks analógicos para la dirección y los botones/gatillos para acelerar, frenar y usar ítems,
+   * Entonces el sistema procesa la entrada analógica con zonas muertas (deadzones) calibradas y despliega los prompts visuales de botones específicos de consola en la UI.
+* Escenario 2: Adaptabilidad de interfaz a diferentes formatos de pantalla (Responsive Display)
+   * Dado que la consola se conecta a televisores o monitores con diversas resoluciones y relaciones de aspecto (1080p, 4K, 16:9, 21:9),
+   * Cuando se inicializa la UI del juego,
+   * Entonces el HUD de conducción escala de forma responsive dentro del área segura (safe area) de la pantalla, manteniendo la legibilidad de íconos e indicadores de control.
+
+
+________________
+
+
+HU-01.4: Validación de movimiento y autoridad del servidor (Server Authority)
+Especificación
+	Detalle
+	Declaración
+	"Como sistema de juego, quiero validar y autorizar en el servidor las posiciones, velocidad y trayectorias enviadas por los clientes de cualquier dispositivo, para evitar alteraciones no autorizadas o hacks de velocidad y garantizar la integridad de la carrera."
+	Requerimientos
+	RF-01, RNF-04, RNF-05
+	Criterios de Aceptación
+* Escenario 1: Validación y autorización de movimiento en servidor
+   * Dado que las entradas de movimiento del jugador son enviadas desde el cliente hacia el servidor mediante RemoteEvents sanitizados,
+   * Cuando el servidor procesa los comandos de dirección, aceleración y velocidad en cada frame,
+   * Entonces valida y autoriza la trayectoria física para evitar alteraciones no autorizadas o hacks de velocidad, garantizando la integridad de la carrera.
+* Escenario 2: Detección y corrección de anomalías de velocidad o posición (Anti-Exploit)
+   * Dado que un cliente intenta forzar una velocidad superior a los límites máximos permitidos de la montura o realiza teletransportación,
+   * Cuando el servidor evalúa la posición recibida contra la simulación física autorizada,
+   * Entonces rechaza la actualización del cliente, reposiciona la montura en la última ubicación válida conocida y aplica la corrección correspondiente.
+
+
+________________
+
+
+HU-02.1: Modelo de conducción física base y paramétricas por especie
+Especificación
+	Detalle
+	Declaración
+	Como corredor, quiero que mi montura responda a los mandos de aceleración, frenado y dirección aplicando el perfil físico de su especie (velocidad máxima, aceleración, tracción y radio de giro), para experimentar un comportamiento de conducción diferenciado en la pista.
+	Requerimientos
+	RF-02, RNF-01, RNF-06, RNF-09
+	Criterios de Aceptación
+* Escenario 1: Aplicación del perfil físico de la montura al acelerar y girar
+   * Dado que el jugador inicia la carrera con una montura registrada en la configuración del juego,
+   * Cuando opera los controles de aceleración y dirección en la pista,
+   * Entonces el sistema aplica las curvas físicas de aceleración, velocidad máxima, tracción y giro definidas en el perfil de esa especie, permitiendo que distintas monturas presentan sensaciones de conducción claramente diferenciadas.
+* Escenario 2: Sincronización y respuesta de físicas base en cliente y servidor
+   * Dado que el jugador ejecuta maniobras de aceleración o giro rápido en cualquier plataforma compatible,
+   * Cuando se procesan las fuerzas físicas de la montura,
+   * Entonces el cliente aplica predicción local para renderizar el movimiento con una latencia visual menor a 100 ms, mientras el servidor valida la trayectoria física autorizada manteniendo la tasa de cuadros a 60 FPS estables.
+
+
+________________
+
+
+HU-02.2: Sistema de maniobra de derrape arcade (Drift) en curvas
+Especificación
+	Detalle
+	Declaración
+	Como corredor, quiero ejecutar maniobras de derrape al tomar curvas cerradas a alta velocidad, para mantener el impulso y negociar los giros de la pista sin perder el control de la montura.
+	Requerimientos
+	RF-02, RNF-01, RNF-09
+	Criterios de Aceptación
+* Escenario 1: Ejecución y recuperación de derrape arcade en curvas cerradas
+   * Dado que el jugador toma una curva pronunciada a alta velocidad,
+   * Cuando activa el comando de derrape (drift) y ajusta la dirección,
+   * Entonces el sistema simula el deslizamiento lateral según el nivel de tracción del animal y, al soltar el comando a la salida de la curva, restablece la adherencia a la pista sin perder el control de la montura.
+* Escenario 2: Feedback visual y rendimiento de la maniobra de derrape 
+   * Dado que el jugador mantiene el estado de derrape en la pista,
+   * Cuando el cliente procesa la respuesta visual de la física de deslizamiento,
+   * Entonces renderiza el efecto visual con una latencia menor a 100 ms mediante predicción local, garantizando un rendimiento estable a 60 FPS durante la maniobra.
+
+
+________________
+
+
+HU-03: Activación pasiva de ventaja única parametrizada por especie
+Especificación
+	Detalle
+	Declaración
+	Como corredor, quiero que el servidor aplique automáticamente los modificadores de la ventaja pasiva definidos en la configuración de mi montura equipada, para contar con el beneficio estratégico registrado sin depender de acciones manuales.
+	Requerimientos
+	RF-03, RNF-04, RNF-06
+	Criterios de Aceptación
+* Escenario 1: Lectura y aplicación automática de modificadores numéricos desde los datos del animal
+   * Dado que el jugador inicia la competencia con una montura que posee parámetros de ventaja pasiva registrados en su perfil de datos,
+   * Cuando el servidor evalúa la condición de contexto en la pista (evento de carrera, tipo de superficie o recepción de estado),
+   * Entonces consulta el coeficiente configurado en la especie y aplica la modificación numérica correspondiente sobre la simulación física o de estado del vehículo.
+* Escenario 2: Restricción de activación manual y autoridad del servidor (Anti-Exploit) 
+   * Dado que las ventajas pasivas de las monturas funcionan de forma implícita y carecen de disparador manual,
+   * Cuando el jugador presiona botones de acción en la interfaz sin tener un objeto en sus ranuras de inventario,
+   * Entonces el servidor descarta la petición mediante sanitización de entradas sin alterar el estado ni la velocidad de la montura.
+* Escenario 3: Notificación y respuesta visual desacoplada en el cliente 
+   * Dado que el servidor autoriza la aplicación de un modificador pasivo durante la carrera,
+   * Cuando replica la actualización de estado hacia el cliente del corredor,
+   * Entonces la interfaz local despliega la representación visual e indicadores de partícula sin intervenir en los cálculos físicos que ejecuta el servidor.
+
+
+________________
+
+
+HU-04.1: Anclaje físico y sincronización estructural del Avatar (R15) sobre la montura
+Especificación
+	Detalle
+	Declaración
+	Como jugador, quiero que mi personaje R15 se ancle de forma precisa e instantánea a la montura asignada, para mantener una postura corporal coherente sin desplazamientos visuales ni descalibres estructurales durante la conducción.
+	Requerimientos
+	RF-04, RNF-01, RNF-02
+	Criterios de Aceptación
+* Escenario 1: Anclaje del Character R15 mediante articulaciones y puntos de sujeción
+   * Dado que el servidor o el cliente local carga el personaje R15 del usuario al iniciar la partida,
+   * Cuando se instancia y asigna la montura en el punto de salida de la pista,
+   * Entonces el sistema une el torso y extremidades del avatar a los puntos de sujeción (sockets o joints de animación) de la montura, ajustando colisiones innecesarias del avatar para optimizar el consumo de memoria en el cliente.
+* Escenario 2: Mantenimiento del anclaje durante giros y maniobras de alta velocidad 
+   * Dado que la montura ejecuta giros pronunciados, saltos o maniobras de derrape a alta velocidad,
+   * Cuando las fuerzas físicas del vehículo alteran su inclinación o rotación en la pista,
+   * Entonces la estructura del Avatar R15 permanece perfectamente alineada al punto de anclaje de la montura sin desfasarse ni separarse del animal.
+
+
+________________
+
+
+HU-04.2: Sincronización de animaciones del Avatar según estados de carrera e impactos
+Especificación
+	Detalle
+	Declaración
+	Como jugador, quiero que mi avatar R15 ejecute clips de animación sincronizados con el estado de movimiento o efectos recibidos por la montura, para contar con un feedback visual inmersivo durante toda la competencia.
+	Requerimientos
+	RF-04, RNF-01, RNF-02
+	Criterios de Aceptación
+* Escenario 1: Transición fluida de animaciones por cambio de velocidad y postura
+   * Dado que la montura transiciona de estado (reposo, aceleración máxima, derrape o salto) en el circuito,
+   * Cuando el controlador visual del cliente detecta la variación de velocidad o el evento de conducción,
+   * Entonces ejecuta la transición suave del clip de animación correspondiente en el Avatar R15 manteniendo la tasa de cuadros objetivo.
+* Escenario 2: Mantenimiento del anclaje durante giros y maniobras de alta velocidad 
+   * Dado que la montura recibe el impacto de un objeto de ataque o entra en estado de aturdimiento,
+   * Cuando el servidor notifica y autoriza la aplicación del efecto de estado en la partida,
+   * Entonces la máquina de estados de animación interrumpe el ciclo de conducción base y reproduce el clip de reacción (desequilibrio o aturdimiento) en el Avatar R15 durante la duración de la penalización.
+
+
+________________
+
+
+
+
+
+
+
+
+
+
+
+
+Módulo 2: Generación Procedural de Pistas por Biomas
+HU-05.1: Algoritmo ensamblador de tramos modulares y tangencia geométrica en el servidor
+Especificación
+	Detalle
+	Declaración
+	Como corredor, quiero que el servidor genere automáticamente un circuito continuo uniendo tramos modulares prediseñados al inicio de cada partida, para competir en un trazado impredecible sin superposiciones ni fallos geométricos.
+	Requerimientos
+	RF-05, RNF-04, RNF-06
+	Criterios de Aceptación
+* Escenario 1: Generación y conexión de tramos modulares sin colisiones
+   * Dado que la fase de matchmaking ha finalizado y el servidor inicia la carga de la partida,
+   * Cuando el servidor ejecuta el algoritmo ensamblador procedural de la pista,
+   * Entonces conecta la secuencia parametrizada de piezas modulares (rectas, curvas leves/cerradas, rampas, saltos y bifurcaciones) garantizando alineación geométrica continua y sin estructuras superpuestas.
+* Escenario 2: Validación funcional del punto de salida y línea de meta
+   * Dado que el servidor construye la secuencia de tramos según la longitud configurada para la carrera,
+   * Cuando finaliza el ensamblaje del circuito,
+   * Entonces valida la correcta instanciación de la parrilla de salida con la posición de los corredores y la colocación del tramo final de meta.
+
+
+________________
+
+
+
+
+HU-05.2: Variabilidad procedural por semillas y optimización de carga (StreamingEnabled)
+Especificación
+	Detalle
+	Declaración
+	Como sistema de juego, quiero generar circuitos procedurales mediante selección aleatoria de módulos y aplicar carga progresiva de geometría, para ofrecer trazados dinámicos en cada partida sin penalizar los tiempos de carga del servidor ni la memoria del cliente.
+	Requerimientos
+	RF-05, RNF-03, RNF-04
+	Criterios de Aceptación
+* Escenario 1: Variabilidad aleatoria mediante semilla de generación instantánea
+   * Dado que el servidor inicia la preparación de una carrera y carga el catálogo de tramos del bioma seleccionado,
+   * Cuando ejecuta la secuencia de ensamblaje seleccionando los módulos mediante una semilla aleatoria de partida,
+   * Entonces instancia el circuito continuo en tiempo real conectando los tramos modulares en la posición correspondiente.
+* Escenario 2: Carga progresiva y optimización de memoria (StreamingEnabled / LOD)
+   * Dado que el circuito generado se extiende a lo largo de múltiples tramos en el mapa,
+   * Cuando los corredores avanzan por la pista durante la carrera,
+   * Entonces el cliente gestiona la carga de la geometría cercana y aplica niveles de detalle simplificados (LOD) en tramos distantes, manteniendo el consumo de memoria dentro del límite configurado.
+
+
+
+
+________________
+
+
+
+
+HU-05.3: Conexión dinámica de ramificaciones e itinerarios alternativos (Bifurcaciones) 
+Especificación
+	Detalle
+	Declaración
+	Como corredor, quiero encontrar y elegir entre múltiples caminos y rutas alternativas que se ramifiquen y vuelvan a conectar a lo largo de la pista procedural, para tomar decisiones tácticas de trazado según mi estrategia de carrera.
+	Requerimientos
+	RF-05, RNF-04, RNF-06
+	Criterios de Aceptación
+* Escenario 1: Ensamblaje e integración de tramos con rutas paralela o bifurcaciones
+   * Dado que que el servidor ejecuta el algoritmo de ensamblaje procedural de la pista,
+   * Cuando selecciona e integra módulos prediseñados de tipo bifurcación o camino múltiple,
+   * Entonces garantiza que todas las ramificaciones se vuelvan a conectar de forma fluida con el tramo principal o posterior del circuito, manteniendo la alineación geométrica continua y evitando colisiones o tramos cerrados.
+* Escenario 2: Continuidad de conducción y transición fluida entre rutas
+   * Dado que que el jugador se aproxima a una sección con caminos divididos en la pista,
+   * Cuando selecciona e ingresa por cualquiera de los ramales disponibles,
+   * Entonces el sistema mantiene la respuesta de físicas, aceleración y tracción de la montura sin caídas indeseadas de velocidad ni interferencias físicas en los puntos de separación y convergencia.
+
+
+
+
+________________
+
+
+
+
+HU-06: Aplicación de superficies y peligros de bioma 
+Especificación
+	Detalle
+	Declaración
+	Como corredor, quiero experimentar alteraciones de las físicas en la superficie y peligros dinámicos según el bioma del circuito, para adaptar mi trazado y estilo de conducción a los desafíos del terreno.
+	Requerimientos
+	RF-06, RNF-01, RNF-03
+	Criterios de Aceptación
+* Escenario 1: Modificación de fricción y agarre según el material de la superficie
+   * Dado que el servidor genera un circuito asignado a un bioma específico con propiedades físicas de superficie parametrizadas,
+   * Cuando la montura transita sobre tramos con materiales especiales (como superficies resbaladizas con baja fricción o zonas de desaceleración),
+   * Entonces el servidor aplica los coeficientes de tracción y velocidad correspondientes en tiempo real, exigiendo al jugador ajustar su maniobra de conducción.
+* Escenario 2: Carga progresiva y optimización de memoria (StreamingEnabled / LOD)
+   * Dado que el circuito posiciona elementos interactivos o peligros propios del bioma en la pista (como géiseres de impulso vertical o trampas ambientales),
+   * Cuando el jugador entra en la zona de contacto del elemento ambiental,
+   * Entonces el servidor ejecuta la fuerza física o el efecto parametrizado sobre la montura manteniendo la estabilidad del rendimiento de cuadros por segundo en los clientes.
+
+
+
+
+________________
+
+
+
+
+HU-07: Control de Checkpoints y verificación de posiciones en vivo 
+Especificación
+	Detalle
+	Declaración
+	Como corredor, quiero que el sistema registre con precisión mi paso por los puntos de control invisibles en cualquier trayecto de la pista, para contar con un cálculo justo y en tiempo real de mi posición en la carrera respecto a los demás competidores.
+	Requerimientos
+	RF-07, RNF-04, RNF-05
+	Criterios de Aceptación
+* Escenario 1: Registro de progreso y cálculo de posiciones en trayecto estándar
+   * Dado que que la pista procedural ha instanciado los puntos de control invisibles en cada tramo del circuito,
+   * Cuando los corredores atraviesan consecutivamente cada checkpoint durante la competencia,
+   * Entonces el servidor valida el paso en el orden correcto y actualiza la tabla de posiciones en tiempo real según la distancia recorrida y la proximidad al siguiente punto.
+* Escenario 2: Cálculo de posiciones y distancia en caminos divididos o bifurcaciones
+   * Dado que que dos o más corredores toman rutas o ramificaciones distintas en una sección con bifurcación (HU-05.3),
+   * Cuando avanzan por sus respectivos itinerarios alternativos y cruzan los checkpoints asignados a cada variante,
+   * Entonces el servidor calcula en tiempo real la distancia euclidiana/métrica restante hacia la reconexión con la meta, actualizando con precisión la posición en vivo de cada jugador sin importar la ruta elegida.
+* Escenario 3: Prevención de atajos no válidos y validación en servidor (Anti-Exploit)
+   * Dado que que un jugador intenta omitir un punto de control saltando secciones de la pista o mediante un impulso no autorizado,
+   * Cuando cruza un checkpoint sin haber registrado la validación del anterior en la secuencia,
+   * Entonces el servidor invalida el registro omitido y mantiene el progreso del jugador en el último checkpoint válido alcanzado.
+
+
+
+
+________________
+
+
+
+
+HU-08.1: Reposicionamiento automático por salida de pista e imposibilidad de navegación 
+Especificación
+	Detalle
+	Declaración
+	Como corredor, quiero que el servidor me reubique automáticamente en el circuito cuando salga de los límites transitables de la pista o quede imposibilitado para navegar, para reincorporarme a la competencia sin perder mi progreso de forma injusta.
+	Requerimientos
+	RF-08, RNF-04, RNF-09
+	Criterios de Aceptación
+* Escenario 1: Detección de pérdida de trayectoria o límites no válidos
+   * Dado que que la montura sobrepasa los límites permitidos de la pista o entra en una zona no transitable,
+   * Cuando el servidor detecta la imposibilidad de continuar la navegación por el trazado válido,
+   * Entonces activa de forma automática el proceso de reposicionamiento dinámico.
+* Escenario 2: Detección de conducción en dirección contraria (Wrong Way)
+   * Dado que que el jugador gira su montura y conduce en sentido opuesto al flujo de la pista durante más de 3 segundos consecutivos,
+   * Cuando el servidor valida la dirección inversa prolongada respecto a la orientación de los checkpoints,
+   * Entonces gatilla la reaparición automática para reorientar al corredor hacia el sentido correcto de la carrera.
+* Escenario 3: Prevención de atajos no válidos y validación en servidor (Anti-Exploit)
+   * Dado que que se procesa la reaparición automática por salida de pista o dirección contraria,
+   * Cuando el servidor calcula la ubicación de retorno en el circuito,
+   * Entonces coloca al corredor 0.1 segundos por detrás de su competidor de referencia más cercano, orientado correctamente sobre el trazado y aplicando una breve desaceleración inicial.
+
+
+________________
+
+
+
+
+HU-08.2: Intangibilidad temporal e inmunidad post-reaparición 
+Especificación
+	Detalle
+	Declaración
+	Como corredor, quiero contar con un breve periodo de intangibilidad visual tras reaparecer en la pista, para evitar colisiones accidentales o ser atacado de inmediato mientras retomo el control.
+	Requerimientos
+	RF-08, RNF-09
+	Criterios de Aceptación
+* Escenario 1: Activación de estado intangible e indicación visual de parpadeo
+   * Dado que que la montura es teletransportada a la pista tras un evento de re-spawn (automático o manual),
+   * Cuando el jugador recupera el control del vehículo en el punto de aparición,
+   * Entonces el sistema activa un efecto visual de parpadeo e intangibilidad física durante 1.5 a 2 segundos.
+* Escenario 2: Inmunidad a colisiones y trampas de pista
+   * Dado que que la montura se encuentra en estado intangible de parpadeo,
+   * Cuando entra en contacto físico con otras monturas o pasa sobre trampas de pista (ej. aceite o proyectiles),
+   * Entonces el servidor ignora la colisión y los efectos de estado, permitiendo una reincorporación segura antes de restablecer las colisiones normales.
+
+
+________________
+
+
+HU-08.3: Detección y liberación automática por atasco físico en escenario
+Especificación
+	Detalle
+	Declaración
+	Como corredor, quiero que el servidor detecte si mi montura queda atascada en la geometría del mapa y me libere automáticamente, para continuar la carrera sin quedar bloqueado indefinidamente..
+	Requerimientos
+	RF-08, RNF-04
+	Criterios de Aceptación
+* Escenario 1: Evaluación del tiempo de inmovilidad en carrera activa
+   * Dado que que la montura se encuentra colisionando contra un obstáculo del mapa sin registrar desplazamiento útil en el circuito,
+   * Cuando el temporizador de inmovilidad del servidor alcanza 3 segundos consecutivos,
+   * Entonces el sistema valida el estado de atasco e inicia la rutina de reposicionamiento dinámico.
+* Escenario 2: Liberación y reubicación en punto seguro
+   * Dado que que se valida la condición de atasco prolongado,
+   * Cuando el servidor ejecuta la reubicación,
+   * Entonces posiciona la montura en un tramo despejado del circuito (0.1 segundos por detrás del competidor correspondiente) y le otorga el período de intangibilidad temporal (HU-08.2).
+
+
+________________
+
+
+
+
+HU-08.4: Validación estricta y visibilidad del botón de reaparición manual (Re-spawn)
+Especificación
+	Detalle
+	Declaración
+	Como sistema de juego, quiero mostrar el botón de reaparición manual únicamente cuando el vehículo se encuentre en un estado irrecuperable o fuera de ruta, para evitar peticiones innecesarias al servidor y garantizar que la reaparición siempre se aplique por detrás de la ubicación actual sin generar ventajas.
+	Requerimientos
+	RF-08, RNF-04, RNF-05
+	Criterios de Aceptación
+* Escenario 1: Ocultamiento del botón en flujo de carrera válido
+   * Dado que que la montura se encuentra dentro de los límites transitables de la pista y en la orientación correcta del circuito,
+   * Cuando el usuario presiona el botón de reaparición manual en la interfaz (incluso si frena a velocidad cero voluntariamente),
+   * Entonces el servidor rechaza la solicitud, notificando en pantalla que la reaparición manual no está disponible mientras se encuentre en el trazado válido.
+* Escenario 2: Habilitación y visibilidad dinámica por estado irrecuperable
+   * Dado que que el vehículo se encuentra atascado contra un elemento del mapa sin posibilidad de maniobra o en sentido contrario a la carrera por más de 3 segundos consecutivos,
+   * Cuando el servidor valida que el jugador no puede retomar la marcha por medios normales,
+   * Entonces envía la notificación al cliente para desplegar y habilitar el botón de reaparición manual en la interfaz.
+* Escenario 3: Garantía de no-retroceso competitivo (Anti-Exploit de distancia)
+   * Dado que que se procesa la reaparición automática por salida de pista o dirección contraria,
+   * Cuando el servidor calcula la ubicación de retorno en el circuito,
+   * Entonces coloca al corredor 0.1 segundos por detrás de su competidor de referencia más cercano, orientado correctamente sobre el trazado y aplicando una breve desaceleración inicial.
+
+
+________________
+
+
+
+
+HU-09: Inventario en pista (3 slots) y regla de 1 power-up inicial pre-equipado
+Especificación
+	Detalle
+	Declaración
+	Como corredor, quiero gestionar un inventario de hasta 3 slots en pista e iniciar la carrera con un máximo de 1 power-up consumible pre-equipado en la tienda, para contar con un recurso estratégico inicial sin romper el equilibrio competitivo.
+	Requerimientos
+	RF-09, RNF-04, RNF-07
+	Criterios de Aceptación
+* Escenario 1: Validación y equipamiento inicial en la grilla de salida
+   * Dado que que un jugador ha configurado sus consumibles en la tienda pre-carrera,
+   * Cuando se carga la partida y se instancian las monturas en la parrilla de salida,
+   * Entonces el servidor valida que el jugador inicie únicamente con un máximo de 1 power-up equipado en el Slot 1 de su inventario en pista, dejando los Slots 2 y 3 vacíos.
+* Escenario 2: Restricción de exceso de consumibles pre-equipados
+   * Dado que que un usuario intenta forzar el inicio de la carrera con múltiples consumibles pre-equipados desde el menú,
+   * Cuando el servidor procesa el estado inicial del jugador antes de la largada,
+   * Entonces descarta las solicitudes adicionales, manteniendo libre el espacio en los Slots 2 y 3 para la recolección en carrera.
+* Escenario 3: Interfaz responsive y visualización de los 3 slots
+   * Dado que que la partida está activa en cualquier plataforma (PC, Mobile, Consola),
+   * Cuando el jugador observa la interfaz HUD durante la conducción,
+   * Entonces el sistema despliega visiblemente los 3 slots de inventario en pista, indicando claramente qué ítem ocupa cada casilla y sus respectivos botones/controles de activación.
+
+
+________________
+
+
+
+
+HU-10: Recolección dinámica de cajas e ingreso de ítem a slot libre
+Especificación
+	Detalle
+	Declaración
+	Como corredor, quiero recolectar cajas de power-ups en la pista para obtener ítems aleatorios en la primera casilla libre de izquierda a derecha sin que los objetos existentes cambien de posición, manteniendo un control preciso sobre mi inventario.
+	Requerimientos
+	RF-10, RNF-04, RNF-05
+	Criterios de Aceptación
+* Escenario 1: Asignación secuencial en la primera casilla disponible
+   * Dado que que el jugador tiene al menos un espacio libre en su inventario de 3 slots,
+   * Cuando la montura pasa sobre una caja de power-up activa en el circuito,
+   * Entonces el servidor asigna el ítem aleatorio en la casilla vacía de menor número disponible de izquierda a derecha (Slot 1, Slot 2 o Slot 3), dejando intacta la ubicación de los objetos previamente guardados.
+* Escenario 2: Restricción con inventario completo
+   * Dado que que el corredor mantiene sus 3 casillas ocupadas con ítems activos,
+   * Cuando entra en contacto con una caja de power-up,
+   * Entonces el sistema ejecuta el efecto visual de recolección en la pista, pero el servidor no otorga ítems adicionales ni modifica el contenido de ningún slot.
+* Escenario 3: Tiempo de recarga y validación en servidor (Anti-Exploit)
+   * Dado que que varios corredores impactan la misma caja de power-up en tiempo real,
+   * Cuando las peticiones se procesan en el servidor,
+   * Entonces este valida y concede el ítem únicamente al primer competidor registrado, ocultando la caja temporalmente por un periodo de recarga de 5 segundos.

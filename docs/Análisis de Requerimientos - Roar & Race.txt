@@ -1,0 +1,274 @@
+﻿Documento de Análisis de Requerimientos — Roar & Race
+Proyecto: Roar & Race
+Plataforma Target: Roblox (PC, Mobile, Console)
+Rol: Senior Product Owner & System Analyst
+Fase: Fase 2 — Análisis de Requerimientos
+1. Requerimientos Funcionales (RF)
+a) Módulo 1: Sistema Core de Conducción y Físicas de Montura
+* RF-01: Control Multi-dispositivo de Monturas
+El sistema debe procesar y mapear entradas en tiempo real adaptadas a Teclado/Mouse, Gamepad y Pantalla Táctil (móviles), garantizando una respuesta fluida en la dirección, aceleración, frenado y activación de ítems.
+* RF-02: Físicas y Modelo de Conducción Arcade
+El motor de juego debe simular un modelo de conducción arcade con parámetros configurables por especie de animal: velocidad máxima, aceleración, radio de giro, tracción/agarre y desaceleración en derrape.
+* RF-03: Habilidades Pasivas Exclusivas por Especie
+Cada especie animal debe poseer una única habilidad pasiva inmodificable (ej. Capibara: inmunidad a desaceleración en agua/barro; Avestruz: aceleración inicial +15%; Caballo: mayor velocidad punta en rectas; Dragón Casual: reducción del 20% en tiempo de aturdimiento por impactos).
+* RF-04: Sincronización Avatar-Montura y Animaciones
+El sistema debe anclar el Character (R15) del usuario a la montura mediante sockets o joints de animación, ejecutando clips animados sincronizados según la velocidad y estado de la carrera.
+b) Módulo 2: Generación Procedural de Pistas por Biomas
+   * RF-05: Algoritmo Ensamblador de Tramos Modulares
+El servidor debe generar una pista continua e impredecible al inicio de cada partida conectando aleatoriamente piezas prediseñadas (rectas, curvas leves/cerradas, rampas, saltos, bifurcaciones) asegurando tangencia geométrica y sin colisiones overlapping.
+   * RF-06: Sistema de Biomas Dinámicos y Propiedades de Superficie
+El algoritmo debe aplicar biomas temáticos (Desierto, Nieve, Selva, Volcán) modificando el material físico de la pista (ej. hielo resbaladizo con menor fricción, barro que ralentiza, géiseres con fuerza vertical).
+   * RF-07: Puntos de Control (Checkpoints) y Posicionamiento
+Cada tramo generado debe instanciar un checkpoint invisible para determinar la posición exacta de cada corredor en la competencia en tiempo real.
+   * RF-08: Re-spawn y Reposicionamiento Automático
+Si un jugador cae fuera de los límites de la pista o queda atascado por más de 3 segundos, el sistema debe reubicarlo automáticamente en el último checkpoint validado con una penalización breve de velocidad.
+c) Módulo 3: Sistema de Power-ups e Interacción en Pista
+      * RF-09: Inventario en Pista y Regla de Equipamiento Inicial (Hasta 3 Slots)
+El sistema de inventario del corredor en pista debe gestionar una capacidad máxima de 3 slots simultáneos de power-ups. Asimismo, el sistema debe aplicar la regla de estado inicial de carrera, permitiendo que el jugador inicie la competencia con un máximo de 1 power-up equipado en el Slot 1 (proveniente de sus consumibles pre-equipados en la tienda), manteniendo los Slots 2 y 3 vacíos para la recolección en pista.
+      * RF-10: Cajas de Power-ups y Recolección Dinámica
+La pista distribuirá cajas recargables (respawn de 5 segundos). Si el jugador pasa sobre una caja y su inventario en pista tiene menos de 3 slots ocupados, se le asignará un ítem aleatorio en el siguiente slot libre. Si los 3 slots están llenos, la caja se recogerá visualmente pero no otorgará ítems adicionales.
+      * RF-11: Ítems Activos de Movilidad y Defensa
+El sistema debe incluir ítems defensivos y de propulsión: Turbo Nitro (impulso de velocidad inmediato) y Escudo Protector (inmunidad temporal contra un ataque directo).
+      * RF-12: Ítems Activos de Ataque y Trampas
+El sistema debe incluir ítems ofensivos: Proyectil Teledirigido (busca al corredor en la posición superior), Proyectil Rebotador y Trampas de Pista (aceite/cáscaras que causan trompo inmediato al pisarse).
+      * RF-13: Sistema de Efectos de Estado (Status Effects)
+El sistema debe gestionar estados temporales aplicados a los jugadores (Aturdimiento, Ralentización, Ceguera de Pantalla, Inmunidad), bloqueando o modificando el control del personaje durante su duración.
+d) Módulo 4: Matchmaking, Sistema de Lobbies e Integración de Bots con IA
+         * RF-14: Matchmaking con Parametrización de Participantes
+El servidor de matchmaking debe agrupar jugadores con una tolerancia de tiempo máxima de 15 a 20 segundos. La cantidad total de participantes por carrera debe ser parametrizable dinámicamente según la pista o modo de juego configurado (ej. salas de 4, 6, 8 o 12 corredores).
+         * RF-15: Relleno e Integración de Bots con IA Parametrizados
+Si el temporizador de la sala expira antes de completar el cupo de la carrera, el servidor instanciará bots controlados por IA para completar el número exacto de participantes parametrizado en RF-14.
+         * RF-16: Comportamiento Adaptativo de Bots (IA)
+Los bots deben navegar la pista procedural mediante seguimiento de waypoints, evitar obstáculos, recoger cajas de power-ups y activar ítems con una tasa de acierto/dificultad calibrada según la liga de la sala.
+         * RF-17: Lobby Interactivo Social
+El juego debe proveer un hub central donde los usuarios puedan moverse libremente, inspeccionar monturas de otros jugadores, acceder a la tienda y entrar a portales de matchmaking.
+e) Módulo 5: Sistema Competitivo, Ligas y Battle Pass Temporizador
+            * RF-18: Sistema de Clasificación y Rangos (MMR/ELO)
+Al finalizar cada carrera, el servidor debe calcular y actualizar el puntaje de clasificación del usuario basándose en el puesto de llegada y el nivel promedio de la sala.
+            * RF-19: Temporadas Mensuales y Recompensas Específicas por Liga
+Al finalizar la temporada mensual (30 días), el sistema otorgará automáticamente las siguientes recompensas según la liga máxima alcanzada (Bronce, Plata, Oro, Diamante, Leyenda):
+               1. Cosmético Exclusivo de Liga: Un elemento estético único (ej. marco/insignia, sombrero o rastro) que demuestra visualmente el rango alcanzado en esa temporada.
+               2. Paquete de Power-ups Iniciales de Temporada: Una cantidad diferenciada y proporcional a la liga alcanzada de power-ups consumibles para equipar al inicio de las carreras en la nueva temporada.
+               * RF-20: Battle Pass Rotativo de 50 Niveles
+El juego debe ofrecer un pase de temporada de 50 niveles con vía Gratuita y vía Premium, acumulando Experiencia (XP) otorgada por completar carreras y misiones diarias/semanales.
+f) Módulo 6: Tienda, Personalización Cosmética y Monetización
+                  * RF-21: Personalización Cosmética Independiente
+El sistema debe permitir equipar elementos estéticos sin impacto en las estadísticas base: sombreros para el avatar, sillas de montar, accesorios para la montura y rastros de velocidad (trails).
+                  * RF-22: Venta de Power-ups Consumibles
+La tienda del juego permitirá la compra de paquetes de power-ups consumibles mediante monedas virtuales o Robux. El usuario podrá gestionar su inventario fuera de pista y seleccionar cuál consumible equipar en su ranura pre-carrera (respetando la restricción del RF-09 de 1 solo power-up inicial por partida).
+                  * RF-23: Recompensa de Ítem Inicial por Podio
+Al finalizar cada carrera, el juego otorgará automáticamente 1 ítem consumible de inicio de carrera a los competidores que terminen en los tres primeros lugares (1.º, 2.º y 3.er puesto). El objeto entregado se guardará directamente en el inventario personal del jugador para que pueda equiparse antes de empezar futuras partidas.
+                  * RF-24: Gestión de Gamepasses Permanentes
+El sistema debe validar la propiedad de Gamepasses como el Pase VIP (multiplicador +20% de monedas, estela exclusiva, montura VIP) y Doble Equipamiento Cosmético.
+                  * RF-25: Venta de Developer Products y Boosts
+El sistema debe permitir compras repetibles con Robux para adquirir paquetes de monedas virtuales e incrementadores temporales (Boosts 2x Monedas/XP).
+                  * RF-26: Tienda Rotativa e Integración Premium Payouts
+La tienda debe actualizar automáticamente su catálogo rotativo y registrar el tiempo de permanencia de suscriptores de Roblox Premium para otorgar bonificaciones pasivas.
+2. Requerimientos No Funcionales (RNF)
+a) Rendimiento y Optimización
+                     * RNF-01: Tasa de Cuadros Objetivos (FPS)
+El juego debe mantener un rendimiento mínimo de 60 FPS estables en PC y Consolas, y >= 50 FPS en dispositivos móviles de gama media/baja durante situaciones de alta carga.
+                     * RNF-02: Límite de Memoria en Cliente
+El consumo de memoria RAM en el cliente no debe exceder los 400 MB en dispositivos móviles para prevenir cierres por falta de memoria (Out-Of-Memory Crashes).
+                     * RNF-03: StreamingEnabled y LOD
+El sistema de generación procedural debe aplicar StreamingEnabled y Level of Detail (LOD) dinámico en tramos lejanos para reducir las llamadas de dibujo y uso de geometría.
+b) Seguridad y Autoridad del Servidor
+                        * RNF-04: Server Authority Anti-Exploits
+La posición, velocidad, colisiones, validación de checkpoints, recolección, inventario de 3 slots de power-ups y tiempos de llegada deben ser calculados y autorizados exclusivamente por el servidor para evitar hacks de velocidad o teletransportación.
+                        * RNF-05: Validaciones Sanitizadas en RemoteEvents
+Todas las peticiones del cliente enviadas mediante RemoteEvent o RemoteFunction deben someterse a sanitización de tipos, comprobación de cooldowns y validación de rango físico en el servidor antes de ejecutarse.
+c) Escalabilidad y Mantenibilidad del Código
+                           * RNF-06: Arquitectura Modular en Luau
+La base de código debe estructurarse utilizando arquitectura modular (ej. Knit / Frameworks modulares) permitiendo añadir nuevos biomas, power-ups y animales sin modificar el núcleo del sistema.
+                           * RNF-07: Persistencia y Guardado Seguro de Datos
+La gestión de datos del jugador (DataStores) debe implementar envoltorios seguros con pcall, reintentos exponenciales, guardado periódico y protección contra corrupción de inventario (incluyendo power-ups consumibles comprados) o datos perdidos.
+d) Experiencia de Usuario e Interfaz (UX/UI)
+                              * RNF-08: Interfaz Adaptativa Cross-Platform
+La interfaz de usuario (UI) debe escalar dinámicamente según la resolución y orientación de la pantalla, ajustando áreas táctiles para móviles (Touch Buttons) y soporte completo para Gamepads y Teclado/Mouse.
+                              * RNF-09: Latencia y Feedback Visual
+El tiempo de respuesta visual tras la interacción del usuario en UI debe ser menor a 100 ms, utilizando técnicas de predicción en el cliente (Client Prediction) para el movimiento suave de la montura.
+                              * RNF-10: Soporte Multilingüe (Español e Inglés) 
+La experiencia de juego e interfaz debe adaptarse automáticamente al idioma del usuario (Español e Inglés), desplegando todos los textos de menús, botones, descripciones de ítems, notificaciones y diálogos en el idioma configurado en el dispositivo del jugador. En caso de que el usuario utilice un idioma no soportado, el juego mostrará por defecto el idioma principal (Español o Inglés).
+
+
+3. Historias de Usuario Principales con Criterios de Aceptación (BDD)
+Indexación del Product Backlog (HU-01 a HU-25)
+                                 * HU-01: Control multi-dispositivo y maniobrabilidad de la montura.
+                                 * HU-02: Conducción con físicas arcade y parámetros diferenciados por especie.
+                                 * HU-03: Activación pasiva de habilidad única por especie animal.
+                                 * HU-04: Anclaje y animación fluida de Avatar (R15) sobre la montura.
+                                 * HU-05: Generación de circuito procedural por tramos al iniciar carrera.
+                                 * HU-06: Aplicación de superficies y peligros de bioma (Nieve, Volcán, Selva, Desierto)
+                                 * HU-07: Verificación de Checkpoints invisibles y cálculo de posiciones en vivo.
+                                 * HU-08: Reposicionamiento automático (Re-spawn) por caída o atasco.
+                                 * HU-09: Gestión de inventario de 3 slots y regla de 1 power-up inicial pre-equipado.
+                                 * HU-10: Recolección dinámica de cajas e ingreso de ítem a slot libre.
+                                 * HU-11: Activación de power-ups de movilidad y defensa (Turbo Nitro y Escudo).
+                                 * HU-12: Lanzamiento de power-ups de ataque y trampas (Proyectil y Aceite).
+                                 * HU-13: Recepción y recuperación de efectos de estado (Aturdimiento, Ceguera).
+                                 * HU-14: Matchmaking con parametrización de participantes por carrera (4, 6, 8, 12).
+                                 * HU-15: Relleno automático de cupos con Bots de IA al vencer al temporizador.
+                                 * HU-16: Navegación y comportamiento competitivo adaptativo de Bots de IA.
+                                 * HU-17: Exploración social e interacción en el Lobby Central.
+                                 * HU-18: Actualización de clasificación MMR/ELO tras finalizar la carrera.
+                                 * HU-19: Otorgamiento automático de recompensas de Liga de fin de temporada (Cosmético + Paquete de Power-ups).
+                                 * HU-20: Acumulación de XP y desbloqueo de niveles en el Battle Pass de 50 niveles.
+                                 * HU-21: Equipamiento estético independiente para personaje y montura.
+                                 * HU-22: Compra de paquetes consumibles de power-ups iniciales en la tienda.
+                                 * HU-23: Recompensa de ítem inicial por quedar en los primeros tres lugares.
+                                 * HU-24: Activación y validación de beneficios de Gamepasses (Pase VIP y Doble Equipamiento).
+                                 * HU-25: Adquisición de Developer Products (Monedas y Boosts 2x XP/Monedas).
+                                 * HU-26: Catálogo en tienda rotativa y recepción de bonificaciones Premium Payouts.
+                                 * HU-27: Soporte de idioma dinámico (Español e Inglés).
+
+
+Matriz de Trazabilidad de Requerimientos vs Historias de Usuario
+
+
+ID Historia
+	Título de la Historia de Usuario
+	Requerimientos Funcionales Cobertura (RF)
+	Requerimientos No Funcionales Relacionados (RNF)
+	HU-01
+	Control multi-dispositivo y maniobrabilidad de la montura
+	RF-01
+	RNF-08, RNF-09
+	HU-02
+	Conducción con físicas arcade diferenciadas
+	RF-02
+	RNF-01, RNF-09
+	HU-03
+	Habilidad pasiva única por especie
+	RF-03
+	RNF-04, RNF-06
+	HU-04
+	Anclaje y animación del Avatar R15
+	RF-04
+	RNF-01, RNF-02
+	HU-05
+	Ensamblaje procedural de circuito por tramos
+	RF-05
+	RNF-03, RNF-04, RNF-06
+	HU-06
+	Aplicación de biomas y superficies dinámicas
+	RF-06
+	RNF-01, RNF-03
+	HU-07
+	Control de Checkpoints y posiciones en vivo
+	RF-07
+	RNF-04, RNF-05
+	HU-08
+	Sistema de Re-spawn automático
+	RF-08
+	RNF-04
+	HU-09
+	Inventario de 3 slots y 1 power-up inicial
+	RF-09
+	RNF-04, RNF-07
+	HU-10
+	Recolección dinámica de cajas en pista
+	RF-10
+	RNF-04, RNF-05
+	HU-11
+	Activación de Turbo Nitro y Escudo Protector
+	RF-11
+	RNF-04, RNF-09
+	HU-12
+	Lanzamiento de Proyectiles y Trampas
+	RF-12
+	RNF-04, RNF-05
+	HU-13
+	Aplicación y control de Efectos de Estado
+	RF-13
+	RNF-04, RNF-09
+	HU-14
+	Matchmaking con participantes parametrizados
+	RF-14
+	RNF-04, RNF-08
+	HU-15
+	Relleno automático de cupos con Bots de IA
+	RF-15
+	RNF-01, RNF-06
+	HU-16
+	Comportamiento adaptativo de Bots según Liga
+	RF-16
+	RNF-01, RNF-06
+	HU-17
+	Navegación e inspección en el Lobby Social
+	RF-17
+	RNF-01, RNF-08
+	HU-18
+	Actualización de clasificación MMR/ELO
+	RF-18
+	RNF-04, RNF-07
+	HU-19
+	Recompensas de Liga de Fin de Temporada
+	RF-19
+	RNF-04, RNF-07
+	HU-20
+	Progresión de XP y niveles en Battle Pass
+	RF-20
+	RNF-04, RNF-07
+	HU-21
+	Personalización cosmética independiente
+	RF-21
+	RNF-02, RNF-07
+	HU-22
+	Compra e inventariado de Power-ups consumibles
+	RF-22
+	RNF-04, RNF-07
+	HU-23
+	Validación y beneficios de Gamepasses
+	RF-23
+	RNF-04, RNF-07
+	HU-24
+	Recompensa de ítem inicial por quedar en los primeros tres lugares 
+	RF-24
+	RNF-04, RNF-07
+	HU-25
+	Compra de Developer Products y Boosts
+	RF-25
+	RNF-04, RNF-07
+	HU-26
+	Tienda Rotativa e Integración Premium Payouts
+	RF-26
+	RNF-07, RNF-08
+	HU-27
+	Soporte de idioma dinámico (Español e Inglés)
+	RF-27
+	RNF-08, RNF-10
+	
+
+4. Matriz de Priorización de Requerimientos (Metodología MoSCoW)
+
+
+Categoría
+	Codificación de Requerimientos
+	Justificación Técnica y de Negocio
+	Must Have
+Imprescindibles para el MVP
+	RF-01 a RF-17
+HU-01 a HU-17
+RNF-01 a RNF-09
+	Core Loop Ampliado: sistema de conducción, generación procedural por biomas, inventario de 3 slots de power-ups con regla de 1 inicial pre-equipado, matchmaking parametrizado y bots de IA.
+	Should Have
+Importantes no bloqueantes
+	RF-18 a RF-24
+
+
+HU-18 a HU-25
+	Retención Competitiva y Monetización Base: Ligas con premios de temporada, Battle Pass de 50 niveles, equipamiento cosmético, venta de consumibles, Gamepasses y Developer Products .
+	Could Have
+Deseables si hay tiempo
+	RF-26 a RF-27
+
+
+HU-26 a HU-27
+	Profundidad Comercial: Tienda con rotación automática y zonas VIP para suscriptores Premium.
+Soporte multi idioma: Disponibilidad del juego en diferentes idiomas.
+	Won't Have
+Descartados v1.0
+	Editor de pistas por usuarios
+Modo Historia / Campaña
+Power-ups combinados (Fusion Crafting)
+	Control de Alcance: Reservados para futuras expansiones del proyecto.
